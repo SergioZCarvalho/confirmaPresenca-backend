@@ -16,7 +16,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async getUserById(id: number) {
+  async getUserById(id: string) {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {

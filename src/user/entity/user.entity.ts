@@ -1,9 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import Event from '../../event/entity/event.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;
@@ -13,6 +20,10 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Event, (Event) => Event.creator)
+  @JoinColumn({ name: 'event_id' })
+  events: Event[];
 }
 
 export default User;

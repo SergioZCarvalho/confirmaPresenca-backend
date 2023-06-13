@@ -1,6 +1,6 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 import { UserToken } from 'src/user/entity/user-token';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 export const AuthUser = createParamDecorator((a, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest();

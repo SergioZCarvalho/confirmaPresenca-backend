@@ -19,7 +19,7 @@ import LoginDTO from './dtos/login.dto';
 import { RegisterUserDTO } from './dtos/register.dto';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { AuthUser } from 'src/common/auth-user.decorator';
 
 @ApiTags('User')
@@ -30,9 +30,10 @@ export class UserController {
     private jwtService: JwtService,
   ) {}
 
-  @Get(':id')
-  getUser(@Param('id') id: string) {
-    return this.userService.getUserById(Number(id));
+  @UseGuards(AuthGuard)
+  @Get('me')
+  getUserMe(@AuthUser() user) {
+    return this.userService.getUserById(user.id);
   }
 
   @Delete(':id')
@@ -43,12 +44,6 @@ export class UserController {
   @Put(':id')
   UpdateUser(@Param('id') id: string, @Body() user: UpdateUserDTO) {
     return this.userService.update(id, user);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('me')
-  getUserMe(@AuthUser() user) {
-    return this.userService.getUserById(user.id);
   }
 
   @Post()
