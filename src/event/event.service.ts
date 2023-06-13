@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Event from './entity/event.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import ManageEventDTO from './dtos/manage-event.dto';
 import CreateEventDTO from './dtos/create-event.dto';
 
@@ -48,5 +48,13 @@ export class EventService {
         },
       )
       .then((response) => response.raw[0]);
+  }
+
+  count(slug: string) {
+    return this.eventRepository.count({
+      where: {
+        slug: Like(`${slug}%`),
+      },
+    });
   }
 }

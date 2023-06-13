@@ -24,6 +24,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import CreateEventDTO from './dtos/create-event.dto';
 import UpdateEventDTO from './dtos/update-event.dto';
+import slugify from 'slugify';
 
 @ApiTags('event')
 @Controller('event')
@@ -35,10 +36,22 @@ export class EventController {
 
   @UseGuards(AuthGuard)
   @Post()
-  createEvent(@AuthUser() user, @Body() event: CreateEventDTO) {
+  async createEvent(@AuthUser() user, @Body() event: CreateEventDTO) {
+    let slug = slugify(event.name, {
+      replacement: '-',
+      lower: true,
+      strict: true,
+    });
+
+    const slugCount = await this.eventService.count(slug);
+    if (slugCount > 0) {
+      slug = `${slug}_${slugCount}`;
+    }
+
     const eventCreate = this.eventService.createEvent({
       ...event,
       creator: user.data.id,
+      slug,
     });
     return eventCreate;
   }

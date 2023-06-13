@@ -1,3 +1,4 @@
+import slugify from 'slugify';
 import User from '../../user/entity/user.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Repository,
 } from 'typeorm';
 
 @Entity('events')
@@ -38,6 +40,9 @@ class Event {
 
   @Column()
   zipCode: string;
+
+  @Column({ unique: true })
+  slug: string;
 
   @ManyToOne(() => User, (User) => User.events)
   @JoinColumn({ name: 'user_id' })

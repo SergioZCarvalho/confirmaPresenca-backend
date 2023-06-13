@@ -5,6 +5,9 @@ import ManageEventDTO from './manage-event.dto';
 class CreateEventDTO extends ManageEventDTO {
   @ApiProperty()
   creator: string;
+
+  @ApiProperty()
+  slug: string;
 }
 
 export default CreateEventDTO;
