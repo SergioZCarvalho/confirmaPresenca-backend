@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Repository,
 } from 'typeorm';
+import Confirm from 'src/confirm/entity/confirm.entity';
 
 @Entity('events')
 class Event {
@@ -47,6 +49,10 @@ class Event {
   @ManyToOne(() => User, (User) => User.events)
   @JoinColumn({ name: 'user_id' })
   creator: User;
+
+  @OneToMany(() => Confirm, (Confirm) => Confirm.event)
+  @JoinColumn({ name: 'confirm_id' })
+  confirms: Confirm[];
 }
 
 export default Event;

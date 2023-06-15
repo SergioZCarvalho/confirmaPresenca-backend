@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { EventModule } from './event/event.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfirmController } from './confirm/confirm.controller';
+import { ConfirmModule } from './confirm/confirm.module';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     UserModule,
     EventModule,
+    ConfirmModule,
   ],
   controllers: [AppController],
   providers: [AppService],
