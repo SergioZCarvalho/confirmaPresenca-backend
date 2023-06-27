@@ -25,6 +25,9 @@ class ManageEventDTO {
 
   @ApiProperty()
   zipCode: string;
+
+  @ApiProperty()
+  price: number;
 }
 
 export default ManageEventDTO;

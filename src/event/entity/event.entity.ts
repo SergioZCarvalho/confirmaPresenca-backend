@@ -41,6 +41,9 @@ class Event {
   number: number;
 
   @Column()
+  state: string;
+
+  @Column()
   zipCode: string;
 
   @Column({ unique: true })
