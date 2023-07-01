@@ -140,8 +140,9 @@ export class EventController {
       if (!eventQuery) {
         throw new UnauthorizedException();
       }
-      const allowedExtensions = ['.jpg', '.png', '.jpeg'];
+      const allowedExtensions = ['.jpg', '.png', '.jpeg', '.jfif', '.webp'];
       const fileExt = file.originalname.split('.').pop().toLowerCase();
+      console.log('fileExt', fileExt);
       if (!allowedExtensions.includes(`.${fileExt}`)) {
         throw new BadRequestException('Unsupported file type');
       }

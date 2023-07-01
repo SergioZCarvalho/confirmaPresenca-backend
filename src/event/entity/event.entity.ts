@@ -49,6 +49,12 @@ class Event {
   @Column({ unique: true })
   slug: string;
 
+  @Column()
+  whatsapp: string;
+
+  @Column()
+  price: number;
+
   @ManyToOne(() => User, (User) => User.events)
   @JoinColumn({ name: 'user_id' })
   creator: User;

@@ -28,6 +28,9 @@ class ManageEventDTO {
 
   @ApiProperty()
   price: number;
+
+  @ApiProperty()
+  whatsapp: string;
 }
 
 export default ManageEventDTO;
