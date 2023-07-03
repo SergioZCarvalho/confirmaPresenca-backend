@@ -39,9 +39,9 @@ export class EventService {
     });
   }
 
-  getEventByUserSlug(userId: string, slug: string) {
+  getEventByUserSlug(slug: string) {
     return this.eventRepository.findOne({
-      where: { slug, creator: { id: userId } },
+      where: { slug },
     });
   }
 

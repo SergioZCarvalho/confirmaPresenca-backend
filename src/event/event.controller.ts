@@ -63,8 +63,8 @@ export class EventController {
   }
 
   @Get(':slug')
-  listUserEventSlug(@AuthUser() user, @Param('slug') slug: string) {
-    return this.eventService.getEventByUserSlug(user.data.id, slug);
+  listUserEventSlug(@Param('slug') slug: string) {
+    return this.eventService.getEventByUserSlug(slug);
   }
 
   @UseGuards(AuthGuard)
