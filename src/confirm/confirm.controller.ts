@@ -19,6 +19,15 @@ export class ConfirmController {
 
   @Post()
   async createConfirm(@Body() confirm: confirmDTO) {
+    const existingConfirm = await this.confirmService.getConfirmByEmail(
+      confirm.email,
+    );
+
+    if (existingConfirm) {
+      existingConfirm.hasAccepted = confirm.hasAccepted;
+      return this.confirmService.updateConfirm(existingConfirm);
+    }
+
     const confirmCreated = this.confirmService.createConfirm(confirm);
     return confirmCreated;
   }

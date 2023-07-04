@@ -9,6 +9,9 @@ class confirmDTO {
 
   @ApiProperty()
   event: string;
+
+  @ApiProperty()
+  hasAccepted: boolean;
 }
 
 export default confirmDTO;

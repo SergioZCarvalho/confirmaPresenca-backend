@@ -20,6 +20,9 @@ class Confirm {
   @Column()
   email: string;
 
+  @Column()
+  hasAccepted: boolean;
+
   @ManyToOne(() => Event, (Event) => Event.confirms)
   @JoinColumn({ name: 'event_id' })
   event: Event;
