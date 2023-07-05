@@ -39,9 +39,15 @@ export class EventService {
     });
   }
 
-  getEventByUserSlug(slug: string) {
+  getEventBySlug(slug: string) {
     return this.eventRepository.findOne({
       where: { slug },
+    });
+  }
+
+  getEventById(id: string) {
+    return this.eventRepository.findOne({
+      where: { id },
     });
   }
 
@@ -62,5 +68,13 @@ export class EventService {
         slug: Like(`${slug}%`),
       },
     });
+  }
+
+  getConfirmsByEvent(eventId: string) {
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.confirms', 'confirms')
+      .where('event.id = :eventId', { eventId })
+      .getOne();
   }
 }
