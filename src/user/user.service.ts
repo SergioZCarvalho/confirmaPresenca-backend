@@ -12,6 +12,12 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
+  getByEmail(email: string) {
+    return this.userRepository.findOne({
+      where: { email },
+    });
+  }
+
   getAll() {
     return this.userRepository.find();
   }
@@ -32,6 +38,23 @@ export class UserService {
 
   async getUserByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async updateCodeAndCodeExp(email: string, code: string, codeExp: Date) {
+    const user = await this.userRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    user.code = code;
+    user.codeExp = codeExp;
+
+    return this.userRepository.save(user);
+  }
+
+  async updatePassword(user: User) {
+    return this.userRepository.save(user);
   }
 
   update(id: string, user: UpdateUserDTO) {

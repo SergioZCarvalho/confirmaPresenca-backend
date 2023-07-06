@@ -21,6 +21,12 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ nullable: true })
+  code: string;
+
+  @Column({ nullable: true })
+  codeExp: Date;
+
   @OneToMany(() => Event, (Event) => Event.creator)
   @JoinColumn({ name: 'event_id' })
   events: Event[];

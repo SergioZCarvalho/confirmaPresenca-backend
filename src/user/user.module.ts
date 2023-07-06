@@ -19,7 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [UserService],
+  providers: [UserService, ConfigService],
   controllers: [UserController],
 })
 export class UserModule {}
