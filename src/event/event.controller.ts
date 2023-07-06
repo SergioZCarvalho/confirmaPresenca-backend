@@ -66,7 +66,7 @@ export class EventController {
       try {
         const res = await client.geocode({
           params: {
-            address: `${event.address} ${event.number} ${event.city}`,
+            address: `${event.localName}`,
             key: this.configService.get('GOOGLE_MAPS_KEY'),
             region: 'BR',
             language: 'pt',
@@ -125,19 +125,6 @@ export class EventController {
   async getUserEventSlug(@Param('slug') slug: string) {
     const event = await this.eventService.getEventBySlug(slug);
     return { ...event, photos: JSON.parse(event.photos ?? '{}') };
-  }
-
-  @Get('/google/:photo')
-  async getGooglePhoto(
-    @Param('photo') photo: string,
-    @Res() response: Response,
-  ) {
-    response.writeHead(302, {
-      Location: `https://maps.googleapis.com/maps/api/place/photo
-    ?maxwidth=1920
-    &photo_reference=${photo}&key=${this.configService.get('GOOGLE_MAPS_KEY')}`,
-    });
-    response.end();
   }
 
   @Get(':id')

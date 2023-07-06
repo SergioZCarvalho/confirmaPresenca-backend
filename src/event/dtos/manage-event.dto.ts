@@ -6,6 +6,9 @@ class ManageEventDTO {
   name: string;
 
   @ApiProperty()
+  localName: string;
+
+  @ApiProperty()
   description: string;
 
   @ApiProperty()

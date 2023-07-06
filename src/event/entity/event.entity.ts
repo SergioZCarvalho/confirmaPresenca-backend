@@ -58,6 +58,9 @@ class Event {
   @Column()
   photos: string;
 
+  @Column()
+  localName: string;
+
   @ManyToOne(() => User, (User) => User.events)
   @JoinColumn({ name: 'user_id' })
   creator: User;
