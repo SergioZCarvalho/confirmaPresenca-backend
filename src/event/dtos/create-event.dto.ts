@@ -8,6 +8,9 @@ class CreateEventDTO extends ManageEventDTO {
 
   @ApiProperty()
   slug: string;
+
+  @ApiProperty()
+  photos: string;
 }
 
 export default CreateEventDTO;

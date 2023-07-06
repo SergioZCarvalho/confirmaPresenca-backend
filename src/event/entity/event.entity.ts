@@ -55,6 +55,9 @@ class Event {
   @Column()
   price: number;
 
+  @Column()
+  photos: string;
+
   @ManyToOne(() => User, (User) => User.events)
   @JoinColumn({ name: 'user_id' })
   creator: User;

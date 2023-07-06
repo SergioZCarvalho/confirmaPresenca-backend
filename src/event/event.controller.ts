@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Res,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -29,6 +30,12 @@ import { ConfigService } from '@nestjs/config';
 import CreateEventDTO from './dtos/create-event.dto';
 import UpdateEventDTO from './dtos/update-event.dto';
 import slugify from 'slugify';
+import { Client } from '@googlemaps/google-maps-services-js';
+import * as cheerio from 'cheerio';
+import { Response } from 'express';
+import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 @ApiTags('event')
 @Controller('event')
@@ -36,6 +43,7 @@ export class EventController {
   constructor(
     private eventService: EventService,
     private configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -52,10 +60,57 @@ export class EventController {
       slug = `${slug}_${slugCount}`;
     }
 
+    const client = new Client({});
+
+    const maps: any = await new Promise(async (resolve, reject) => {
+      try {
+        const res = await client.geocode({
+          params: {
+            address: `${event.address} ${event.number} ${event.city}`,
+            key: this.configService.get('GOOGLE_MAPS_KEY'),
+            region: 'BR',
+            language: 'pt',
+            bounds: '37.7,-122.5,37.8,-122.4',
+          },
+        });
+        resolve(res.data.results ?? null);
+      } catch (err) {
+        reject(null);
+      }
+    });
+    if (!maps || maps.length === 0) return event;
+
+    const place: any = await new Promise(async (resolve, reject) => {
+      try {
+        const res = await client.placeDetails({
+          params: {
+            place_id: maps[0].place_id,
+            key: this.configService.get('GOOGLE_MAPS_KEY'),
+          },
+        });
+        resolve(res.data.result);
+      } catch (err) {
+        reject(err);
+      }
+    });
+    const photos = [];
+    if (place && place.photos && place.photos.length > 0) {
+      for (const photo of place.photos) {
+        const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${
+          photo.photo_reference
+        }&key=${this.configService.get('GOOGLE_MAPS_KEY')}`;
+
+        const response = await lastValueFrom(this.httpService.get(url));
+        const currentPhoto = response.request.res.responseUrl;
+        photos.push(currentPhoto);
+      }
+    }
+
     const eventCreate = this.eventService.createEvent({
       ...event,
       creator: user.data.id,
       slug,
+      photos: JSON.stringify(photos),
     });
     return eventCreate;
   }
@@ -67,8 +122,22 @@ export class EventController {
   }
 
   @Get('slug/:slug')
-  getUserEventSlug(@Param('slug') slug: string) {
-    return this.eventService.getEventBySlug(slug);
+  async getUserEventSlug(@Param('slug') slug: string) {
+    const event = await this.eventService.getEventBySlug(slug);
+    return { ...event, photos: JSON.parse(event.photos ?? '{}') };
+  }
+
+  @Get('/google/:photo')
+  async getGooglePhoto(
+    @Param('photo') photo: string,
+    @Res() response: Response,
+  ) {
+    response.writeHead(302, {
+      Location: `https://maps.googleapis.com/maps/api/place/photo
+    ?maxwidth=1920
+    &photo_reference=${photo}&key=${this.configService.get('GOOGLE_MAPS_KEY')}`,
+    });
+    response.end();
   }
 
   @Get(':id')
@@ -139,7 +208,6 @@ export class EventController {
       const bucket = 'confirmapresenca';
       const key = `${event}/cover.${fileExt}`;
 
-      // Check if the file exists in the S3 bucket
       const headCommand = new HeadObjectCommand({
         Bucket: bucket,
         Key: key,
@@ -147,9 +215,7 @@ export class EventController {
 
       try {
         await S3.send(headCommand);
-        // File exists, update it
       } catch (error) {
-        // File doesn't exist, upload it
         const fileBuffer = Uint8Array.from(file.buffer);
 
         const putCommand = new PutObjectCommand({
