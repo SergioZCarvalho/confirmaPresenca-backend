@@ -20,10 +20,11 @@ import { RegisterUserDTO } from './dtos/register.dto';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { AuthUser } from 'src/common/auth-user.decorator';
-import { SendEmailDTO } from './dtos/sendEmail';
+import { SendEmailDTO } from './dtos/send-email.dto';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { addHours, isPast } from 'date-fns';
+import { SendCodeDTO } from './dtos/send-code.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -111,10 +112,65 @@ export class UserController {
     });
 
     const mailOptions = {
-      from: 'sergiozanata20@gmail.com',
+      from: '"Confirma Presença" <nao-responda@confirmapresenca.com.br>',
       to: model.email,
-      subject: 'Código de verificação',
-      text: `Seu código de verificação é: ${code}`,
+      subject: 'Código de verificação teste',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Código de Verificação</title>
+          <style>
+            body {
+              background-color: #070d21;
+              font-family: Arial, sans-serif;
+            }
+    
+            .container {
+              width: 400px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #fff;
+              border-radius: 5px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+    
+            h1 {
+              color: #02BE67;
+              text-align: center;
+            }
+    
+            p {
+              color: #333;
+            }
+    
+            .code {
+              font-size: 24px;
+              font-weight: bold;
+              text-align: center;
+              margin-top: 20px;
+              color: #02BE67;
+            }
+    
+            .expiration {
+              text-align: center;
+              margin-top: 10px;
+              color: #888;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Código de Verificação</h1>
+            <p>Olá, ${user.name}</p>
+            <p>Seu código de verificação é:</p>
+            <p class="code">${code}</p>
+            <p class="expiration">Este código expirará em 1 hora.</p>
+          </div>
+        </body>
+        </html>
+      `,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -132,7 +188,7 @@ export class UserController {
   }
 
   @Post('send-code')
-  async sendCode(@Body() model: any) {
+  async sendCode(@Body() model: SendCodeDTO) {
     const { email, code, newPassword } = model;
 
     const user = await this.userService.getByEmail(email);
