@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -56,6 +57,7 @@ export class EventController {
     });
 
     const slugCount = await this.eventService.count(slug);
+
     if (slugCount > 0) {
       slug = `${slug}_${slugCount}`;
     }
@@ -78,10 +80,10 @@ export class EventController {
         reject(null);
       }
     });
-    if (!maps || maps.length === 0) return event;
 
     const place: any = await new Promise(async (resolve, reject) => {
       try {
+        if (!maps || maps.length === 0) return resolve(null);
         const res = await client.placeDetails({
           params: {
             place_id: maps[0].place_id,
@@ -90,6 +92,7 @@ export class EventController {
         });
         resolve(res.data.result);
       } catch (err) {
+        console.log('err', err);
         reject(err);
       }
     });
@@ -106,13 +109,20 @@ export class EventController {
       }
     }
 
-    const eventCreate = this.eventService.createEvent({
-      ...event,
-      creator: user.data.id,
-      slug,
-      photos: JSON.stringify(photos),
-    });
-    return eventCreate;
+    try {
+      const eventCreate = await this.eventService.createEvent({
+        ...event,
+        creator: user.data.id,
+        slug,
+        photos: JSON.stringify(photos),
+      });
+      return eventCreate;
+    } catch (error) {
+      console.error('Erro ao criar evento:', error);
+      throw new Error(
+        'Erro ao criar evento. Por favor, verifique os dados fornecidos.',
+      );
+    }
   }
 
   @UseGuards(AuthGuard)
@@ -123,8 +133,12 @@ export class EventController {
 
   @Get('slug/:slug')
   async getUserEventSlug(@Param('slug') slug: string) {
-    const event = await this.eventService.getEventBySlug(slug);
-    return { ...event, photos: JSON.parse(event.photos ?? '{}') };
+    try {
+      const event = await this.eventService.getEventBySlug(slug);
+      return { ...event, photos: JSON.parse(event.photos ?? '{}') };
+    } catch (ex) {
+      throw new NotFoundException();
+    }
   }
 
   @Get(':id')
@@ -176,9 +190,10 @@ export class EventController {
       if (!eventQuery) {
         throw new UnauthorizedException();
       }
-      const allowedExtensions = ['.jpg', '.png', '.jpeg', '.jfif', '.webp'];
+      const allowedExtensions = ['jpg', 'png', 'jpeg', 'jfif', 'webp'];
       const fileExt = file.originalname.split('.').pop().toLowerCase();
-      if (!allowedExtensions.includes(`.${fileExt}`)) {
+
+      if (!allowedExtensions.includes(`${fileExt}`)) {
         throw new BadRequestException('Unsupported file type');
       }
       const S3 = new S3Client({

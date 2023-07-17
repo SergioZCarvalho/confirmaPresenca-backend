@@ -61,11 +61,11 @@ class Event {
   @Column()
   localName: string;
 
-  @ManyToOne(() => User, (User) => User.events)
+  @ManyToOne(() => User, (User) => User.events, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   creator: User;
 
-  @OneToMany(() => Confirm, (Confirm) => Confirm.event)
+  @OneToMany(() => Confirm, (Confirm) => Confirm.event, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'confirm_id' })
   confirms: Confirm[];
 }

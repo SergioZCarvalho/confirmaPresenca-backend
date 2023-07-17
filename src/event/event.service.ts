@@ -11,14 +11,23 @@ export class EventService {
     @InjectRepository(Event) private eventRepository: Repository<Event>,
   ) {}
 
-  createEvent(event: CreateEventDTO) {
-    const createEvent = this.eventRepository.create({
-      ...event,
-      creator: {
-        id: event.creator,
-      },
-    });
-    return this.eventRepository.save(createEvent);
+  async createEvent(event: CreateEventDTO): Promise<Event> {
+    try {
+      const createEvent = this.eventRepository.create({
+        ...event,
+        creator: {
+          id: event.creator,
+        },
+        confirms: [],
+      });
+      const saved = await this.eventRepository.save(createEvent);
+      return saved;
+    } catch (error) {
+      console.error('Erro ao criar evento:', error);
+      throw new Error(
+        'Erro ao criar evento. Por favor, verifique os dados fornecidos.',
+      );
+    }
   }
 
   updateEvent(eventId: string, event: ManageEventDTO) {

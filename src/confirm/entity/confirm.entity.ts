@@ -23,7 +23,7 @@ class Confirm {
   @Column()
   hasAccepted: boolean;
 
-  @ManyToOne(() => Event, (Event) => Event.confirms)
+  @ManyToOne(() => Event, (Event) => Event.confirms, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'event_id' })
   event: Event;
 }
