@@ -21,6 +21,7 @@ export class ConfirmController {
   async createConfirm(@Body() confirm: confirmDTO) {
     const existingConfirm = await this.confirmService.getConfirmByEmail(
       confirm.email,
+      confirm.event,
     );
 
     if (existingConfirm) {

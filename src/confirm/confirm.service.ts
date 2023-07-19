@@ -27,10 +27,16 @@ export class ConfirmService {
     return this.confirmRepository.save(confirmEvent);
   }
 
-  async getConfirmByEmail(email: string): Promise<Confirm | undefined> {
+  async getConfirmByEmail(
+    email: string,
+    event: string,
+  ): Promise<Confirm | undefined> {
     return this.confirmRepository.findOne({
       where: {
         email,
+        event: {
+          id: event,
+        },
       },
     });
   }
